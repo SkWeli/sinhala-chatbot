@@ -5,7 +5,7 @@ A fully offline, RAG-powered, Constitutional AI chatbot built with Ollama, LangC
 ---
 
 ## Architecture
-
+```
 User Input (Sinhala)
 ↓
 Streamlit UI
@@ -17,7 +17,7 @@ RAG Retriever ←── ChromaDB + nomic-embed-text
 Qwen2.5:7b via Ollama ←── Fully local LLM inference
 ↓
 Sinhala Response (streamed)
-
+```
 
 ---
 
