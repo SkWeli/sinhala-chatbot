@@ -1,0 +1,35 @@
+# Virtual environment
+chatbot-env/
+venv/
+env/
+
+# ChromaDB vector store (large binary files)
+chroma_db/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ollama model files (stored separately by Ollama)
+*.gguf
+*.bin
+
+# Environment variables
+.env
+*.env
+
+# Streamlit cache
+.streamlit/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
