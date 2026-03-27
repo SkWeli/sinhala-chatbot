@@ -80,7 +80,7 @@ Open your browser at `http://localhost:8501`
 ---
 
 ## Project Structure
-
+```
 sinhala-chatbot/
 ├── documents/ ← PDF knowledge base (add files here)
 ├── chroma_db/ ← Auto-generated vector store (git-ignored)
@@ -90,7 +90,7 @@ sinhala-chatbot/
 ├── requirements.txt ← Python dependencies
 ├── .gitignore
 └── README.md
-
+```
 
 ---
 
