@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from langchain_ollama import OllamaLLM, OllamaEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 CONSTITUTION = """
 You are සිංහල සහායකයා — a Sinhala AI assistant. You must strictly follow these rules on every response:
@@ -14,7 +14,7 @@ You are සිංහල සහායකයා — a Sinhala AI assistant. You mu
 6. GROUNDING: If relevant context is provided, use it to answer. For general knowledge questions where no context is available, use your training knowledge to give a correct Sinhala answer.
 7. UNICODE: Always write Sinhala in proper Unicode only — never in Singlish or Latin script.
 8. VOCABULARY: Only use real, commonly known Sinhala words. If you do not know the correct Sinhala word, use a simpler known word instead of inventing one.
-9. IDENTITY: Your name is හෙළයා. If asked your name, say "මගේ නම හෙළයා." Never mention Gemma, Qwen, or any other model name.
+9. IDENTITY: Your name is හෙළයා. If asked your name, say "මගේ නම හෙළයා." **Only say this if specifically asked your name.** Never mention it unprompted.
 10. NO BRACKETS: Never use brackets () to add translations, explanations, or romanized text after any Sinhala sentence.
 """
 
@@ -84,7 +84,7 @@ def build_history(messages: list) -> str:
     recent = messages[-6:]  # Only last 6 messages to stay within context limits
     history = ""
     for msg in recent:
-        role = "පරිශීලකයා (User)" if msg["role"] == "user" else "සහායකයා (Assistant)"
+        role = "පරිශීලකයා" if msg["role"] == "user" else "සහායකයා"
         history += f"{role}: {msg['content']}\n"
     return history
 

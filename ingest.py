@@ -1,57 +1,64 @@
 import os
-from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings
 
-# Define Paths 
-DOCUMENTS_DIR = "./documents"
+# Define Paths
+KNOWLEDGE_DIR = "./knowledge"
 CHROMA_DB_DIR = "./chroma_db"
-EMBED_MODEL   = "nomic-embed-text"  # local embedding model via Ollama
+EMBED_MODEL   = "nomic-embed-text"
 
-# Safety Check 
-if not os.path.exists(DOCUMENTS_DIR) or not os.listdir(DOCUMENTS_DIR):
-    print("❌ No documents found in /documents folder.")
-    print("   Add PDF or text files there first, then re-run this script.")
+# Safety Check
+if not os.path.exists(KNOWLEDGE_DIR) or not os.listdir(KNOWLEDGE_DIR):
+    print("❌ No files found in /knowledge folder.")
+    print("   Add .txt files there first, then re-run this script.")
     exit(1)
 
-# Load Documents 
-print("📂 Loading documents from /documents...")
+# Load Documents
+print("📂 Loading knowledge files from /knowledge...")
 
 loader = DirectoryLoader(
-    DOCUMENTS_DIR,
-    glob="**/*.pdf",           # target all PDF files recursively
-    loader_cls=PyPDFLoader,    # use PyPDF to read each PDF's text
-    show_progress=True         # show loading progress bar
+    KNOWLEDGE_DIR,
+    glob="**/*.txt",
+    loader_cls=TextLoader,
+    loader_kwargs={"encoding": "utf-8"},  # critical for Sinhala Unicode
+    show_progress=True
 )
 
 documents = loader.load()
-print(f"✅ Loaded {len(documents)} page(s) from your documents.")
+print(f"✅ Loaded {len(documents)} file(s) from knowledge folder.")
 
 # Split Into Chunks
-print("\n✂️  Splitting documents into chunks...")
+print("\n✂️  Splitting into chunks...")
 
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,       # max characters per chunk
-    chunk_overlap=50,     # overlap between consecutive chunks
-    length_function=len,  # measure size by character count
+    chunk_size=300,       # smaller = better for Sinhala sentences
+    chunk_overlap=30,
+    length_function=len,
 )
 
 chunks = splitter.split_documents(documents)
-print(f"✅ Created {len(chunks)} chunks from your documents.")
+print(f"✅ Created {len(chunks)} chunks.")
 
-# Generate Embeddings + Store in ChromaDB 
+# Generate Embeddings + Store in ChromaDB
 print("\n🧠 Generating embeddings and storing in ChromaDB...")
-print("   (This may take a few minutes depending on document size)")
+print("   (This may take a few minutes)")
 
 embeddings = OllamaEmbeddings(model=EMBED_MODEL)
+
+# Clear old ChromaDB first
+import shutil
+if os.path.exists(CHROMA_DB_DIR):
+    shutil.rmtree(CHROMA_DB_DIR)
+    print("🗑️  Cleared old ChromaDB.")
 
 vectorstore = Chroma.from_documents(
     documents=chunks,
     embedding=embeddings,
-    persist_directory=CHROMA_DB_DIR   # saves to ./chroma_db folder
+    persist_directory=CHROMA_DB_DIR
 )
 
-print(f"\n✅ Successfully stored {len(chunks)} chunks in ChromaDB.")
+print(f"\n✅ Stored {len(chunks)} chunks in ChromaDB.")
 print(f"   Location: {CHROMA_DB_DIR}")
-print("\n🚀 RAG knowledge base is ready! Run: streamlit run chatbot.py")
+print("\n🚀 Knowledge base ready! Run: streamlit run chatbot.py")
